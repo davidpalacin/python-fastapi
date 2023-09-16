@@ -25,11 +25,42 @@ async def users():
     return users_list
 
 
-# Get 1 user
+# Get 1 user by path
 @app.get("/user/{id}")
 async def user(id: int):
+    return search_user(id)
+
+
+# Get 1 user by query parameter
+@app.get("/userquery/")
+async def userquery(id: int):
+    return search_user(id)
+
+
+@app.post("/user/new")
+async def usernew(user: User):
+    return add_user(user)
+
+
+@app.put("/user/update")
+async def userupdate(user: User):
+    for index, saved_user in enumerate(users_list):
+        if saved_user.id == user.id:
+            users_list[index] = user
+            return { "message": "Updated.", "user": user }
+    return { "error": "User not found." }
+
+
+def search_user(id: int):
     users = filter(lambda user: user.id == id, users_list)
     try:
         return list(users)[0]
     except:
-        raise HTTPException(status_code=404, detail="User not found")
+        return { "error": "User not found" }
+
+def add_user(user: User):
+    user_exist = search_user(user.id)
+    if type(user_exist) == User:
+        return { "error": "El usuario ya existe." }
+    users_list.append(user)
+    return { "message": "user created", "user": user }    
