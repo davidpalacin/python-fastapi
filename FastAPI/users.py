@@ -44,11 +44,12 @@ async def usernew(user: User):
 
 @app.put("/user/update")
 async def userupdate(user: User):
-    for index, saved_user in enumerate(users_list):
-        if saved_user.id == user.id:
-            users_list[index] = user
-            return { "message": "Updated.", "user": user }
-    return { "error": "User not found." }
+    return update_user(user)
+
+
+@app.delete("/user/delete/{id}")
+async def userdelete(id: int):
+    return delete_user(id)
 
 
 def search_user(id: int):
@@ -63,4 +64,20 @@ def add_user(user: User):
     if type(user_exist) == User:
         return { "error": "El usuario ya existe." }
     users_list.append(user)
-    return { "message": "user created", "user": user }    
+    return { "message": "user created", "user": user }  
+
+
+def update_user(user: User):
+    for index, saved_user in enumerate(users_list):
+        if saved_user.id == user.id:
+            users_list[index] = user
+            return { "message": "User updated.", "user": user }
+    return { "error": "User not found." }
+
+
+def delete_user(id: int):
+    for index, user in enumerate(users_list):
+        if user.id == id:
+            del users_list[index]
+            return { "message": "Deleted", "list": users_list }
+    return {"error": "User not found."}
