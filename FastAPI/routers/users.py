@@ -1,8 +1,7 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import APIRouter
 from pydantic import BaseModel
 
-app = FastAPI()
-
+router = APIRouter()
 
 # Entidad user
 class User(BaseModel):
@@ -20,34 +19,34 @@ users_list = [
 
 
 # Get all users
-@app.get("/users")
+@router.get("/users")
 async def users():
     return users_list
 
 
 # Get 1 user by path
-@app.get("/user/{id}")
+@router.get("/user/{id}")
 async def user(id: int):
     return search_user(id)
 
 
 # Get 1 user by query parameter
-@app.get("/userquery/")
+@router.get("/userquery/")
 async def userquery(id: int):
     return search_user(id)
 
 
-@app.post("/user/new")
+@router.post("/user/new", response_model=User, status_code=201)
 async def usernew(user: User):
     return add_user(user)
 
 
-@app.put("/user/update")
+@router.put("/user/update", status_code=201)
 async def userupdate(user: User):
     return update_user(user)
 
 
-@app.delete("/user/delete/{id}")
+@router.delete("/user/delete/{id}")
 async def userdelete(id: int):
     return delete_user(id)
 
@@ -64,7 +63,7 @@ def add_user(user: User):
     if type(user_exist) == User:
         return { "error": "El usuario ya existe." }
     users_list.append(user)
-    return { "message": "user created", "user": user }  
+    return user 
 
 
 def update_user(user: User):
